@@ -43,15 +43,13 @@ Description
 +++++++++++
 
 This synapse model implements synaptic short-term depression and short-term
-facilitation according to [1]_ and [2]_. It solves Eq (2) from [1]_ and
-modulates U according to eq. (2) of [2]_.
+facilitation according to [1]_. It solves Eq (5) and Eq (6) from Supporting material of [1]_.
 
 This connection merely scales the synaptic weight, based on the spike history
 and the parameters of the kinetic model. Thus, it is suitable for all types
 of synaptic dynamics, that is current or conductance based.
 
-The parameter A_se from the publications is represented by the
-synaptic weight. The variable x in the synapse properties is the
+The quantity ux in the synapse properties is the
 factor that scales the synaptic weight.
 
 .. warning::
@@ -71,33 +69,23 @@ The following parameters can be set in the status dictionary:
                   (U1) [0,1], default=0.5
  u        real    The probability of release (U_se) [0,1],
                   default=0.5
- x        real    Current scaling factor of the weight, default=U
+ x        real    Amount of available resources [0,1], default=1.0
  tau_fac  ms      Time constant for facilitation, default = 0(off)
  tau_rec  ms      Time constant for depression, default = 800ms
 ========  ======  ========================================================
 
 Remarks:
 
-Under identical conditions, the tsodyks2_synapse produces
-slightly lower peak amplitudes than the tsodyks_synapse. However,
-the qualitative behavior is identical. The script
-test_tsodyks2_synapse.py in the examples compares the two synapse
-models.
+Under identical conditions, the tsodyks3_synapse produces
+slightly higher peak amplitudes than the tsodyks_synapse. However,
+the qualitative behavior is identical.
 
 References
 ++++++++++
 
-.. [1] Tsodyks MV,  Markram H (1997). The neural code between neocortical
-       pyramidal neurons depends on neurotransmitter release probability.
-       PNAS, 94(2):719-23.
-       DOI: https://doi.org/10.1073/pnas.94.2.719
-.. [2] Fuhrman, G, Segev I, Markram H, Tsodyks MV (2002). Coding of
-       temporal information by activity-dependent synapses. Journal of
-       Neurophysiology, 87(1):140-8.
-       DOI: https://doi.org/10.1152/jn.00258.2001
-.. [3] Maass W, Markram H (2002). Synapses as dynamic memory buffers.
-       Neural Networks, 15(2):155-61.
-       DOI: https://doi.org/10.1016/S0893-6080(01)00144-7
+.. [1] Mongillo G, Barak O, Tsodyks M (2008). Synaptic Theory of Working
+       Memory. Science 319, 1543–1546.
+       DOI: https://doi.org/10.1126/science.1150769
 
 Transmits
 +++++++++
@@ -196,7 +184,7 @@ private:
   double weight_;
   double U_;           //!< unit increment of a facilitating synapse
   double u_;           //!< dynamic value of probability of release
-  double x_;           //!< current fraction of the synaptic weight
+  double x_;           //!< amount of available resources
   double tau_rec_;     //!< [ms] time constant for recovery
   double tau_fac_;     //!< [ms] time constant for facilitation
   double t_lastspike_; //!< time point of last spike emitted
@@ -222,7 +210,7 @@ x_ = 1. + (x_ - 1.) * x_decay;
 u_ = U_ + (u_ - U_) * u_decay;
 
 u_ += U_ * (1. - u_);
-// We use the current values for the spike number n.
+
 e.set_receiver( *target );
 e.set_weight( weight_ * x_ * u_);
 // send the spike to the target
@@ -230,7 +218,7 @@ e.set_delay_steps( get_delay_steps() );
 e.set_rport( get_rport() );
 e();
 
-// now we compute spike number n+1
+
 x_ -= u_ * x_;
 
 
