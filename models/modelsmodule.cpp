@@ -141,6 +141,7 @@
 #include "stdp_nn_pre_centered_synapse.h"
 #include "stdp_pl_synapse_hom.h"
 #include "stdp_triplet_synapse.h"
+#include "tsodyks3_synapse.h"
 #include "tsodyks2_synapse.h"
 #include "tsodyks_synapse.h"
 #include "tsodyks_synapse_hom.h"
@@ -329,6 +330,7 @@ ModelsModule::init( SLIInterpreter* )
   register_connection_model< tsodyks_synapse >( "tsodyks_synapse" );
   register_connection_model< tsodyks_synapse_hom >( "tsodyks_synapse_hom" );
   register_connection_model< tsodyks2_synapse >( "tsodyks2_synapse" );
+  register_connection_model< tsodyks3_synapse >( "tsodyks3_synapse" );
   register_connection_model< urbanczik_synapse >(
     "urbanczik_synapse", default_connection_model_flags | RegisterConnectionModelFlags::REQUIRES_URBANCZIK_ARCHIVING );
   register_connection_model< vogels_sprekeler_synapse >( "vogels_sprekeler_synapse" );

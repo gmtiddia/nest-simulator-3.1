@@ -129,6 +129,7 @@ set( models_sources
     step_rate_generator.h step_rate_generator.cpp
     tanh_rate.h tanh_rate.cpp
     threshold_lin_rate.h threshold_lin_rate.cpp
+    tsodyks3_synapse.h
     tsodyks2_synapse.h
     tsodyks_synapse.h
     tsodyks_synapse_hom.h tsodyks_synapse_hom.cpp
