@@ -1,6 +1,6 @@
 # The Neural Simulation Tool - NEST
 
-**This version of NEST is the same as NEST 3.1 except for the implementation of a new model of short-term-plasticity synapse model named tsodyks3_synapse.**
+**This version of NEST is the same as NEST 3.1 except for the implementation of a new model of short-term-plasticity synapse named tsodyks3_synapse.**
 
 [![Documentation](https://img.shields.io/readthedocs/nest-simulator?logo=readthedocs&logo=Read%20the%20Docs&label=Documentation)](https://nest-simulator.org/documentation)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2218/badge)](https://bestpractices.coreinfrastructure.org/projects/2218)
