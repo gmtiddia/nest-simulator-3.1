@@ -73,6 +73,7 @@
 #include "iaf_psc_exp_ps.h"
 #include "iaf_psc_exp_ps_lossless.h"
 #include "izhikevich.h"
+#include "iaf_simple.h"
 #include "lin_rate.h"
 #include "mat2_psc_exp.h"
 #include "mcculloch_pitts_neuron.h"
@@ -254,6 +255,7 @@ ModelsModule::init( SLIInterpreter* )
   kernel().model_manager.register_node_model< ginzburg_neuron >( "ginzburg_neuron" );
   kernel().model_manager.register_node_model< mcculloch_pitts_neuron >( "mcculloch_pitts_neuron" );
   kernel().model_manager.register_node_model< izhikevich >( "izhikevich" );
+  kernel().model_manager.register_node_model< iaf_simple >( "iaf_simple" );
   kernel().model_manager.register_node_model< spike_dilutor >( "spike_dilutor" );
 
   kernel().model_manager.register_node_model< spike_recorder >( "spike_recorder" );
