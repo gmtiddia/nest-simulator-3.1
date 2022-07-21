@@ -69,6 +69,7 @@ nest::iaf_simple::Parameters_::Parameters_()
   , E_L_( -70.0 ) 
   , V_reset_( -70.0 )
   , C_m_( 250.0 )
+  , t_ref_( 2.0 )            // in ms
   , I_e_( 0.0 )
   , V_th_( -55.0 )                                   // mV
   , V_min_( -std::numeric_limits< double >::max() ) // mV
@@ -78,6 +79,7 @@ nest::iaf_simple::Parameters_::Parameters_()
 nest::iaf_simple::State_::State_()
   : v_( -70.0 )       // membrane potential
   , I_( 0.0 )         // input current
+  , r_ref_( 0 )       // refractory counter
 {
 }
 
@@ -95,6 +97,7 @@ nest::iaf_simple::Parameters_::get( DictionaryDatum& d ) const
   def< double >( d, names::E_L, E_L_ );
   def< double >( d, names::V_reset, V_reset_ );
   def< double >( d, names::C_m, C_m_ );
+  def< double >( d, names::t_ref, t_ref_ );
 }
 
 void
@@ -108,6 +111,23 @@ nest::iaf_simple::Parameters_::set( const DictionaryDatum& d, Node* node )
   updateValueParam< double >( d, names::E_L, E_L_, node );
   updateValueParam< double >( d, names::V_reset, V_reset_, node );
   updateValueParam< double >( d, names::C_m, C_m_, node );
+  updateValueParam< double >( d, names::t_ref, t_ref_, node );
+  if ( V_reset_ >= V_th_ )
+  {
+    throw BadProperty( "Reset potential must be smaller than threshold." );
+  }
+  if ( C_m_ <= 0 )
+  {
+    throw BadProperty( "Capacitance must be strictly positive." );
+  }
+  if ( tau_m_ <= 0 )
+  {
+    throw BadProperty( "Membrane time constant must be strictly positive." );
+  }
+  if ( t_ref_ < 0 )
+  {
+    throw BadProperty( "Refractory time must not be negative." );
+  }
 
 }
 
@@ -171,6 +191,11 @@ void
 nest::iaf_simple::calibrate()
 {
   B_.logger_.init();
+
+  V_.RefractoryCounts_ = Time( Time::ms( P_.t_ref_ ) ).get_steps();
+  // since t_ref_ >= 0, this can only fail in error
+  assert( V_.RefractoryCounts_ >= 0 );
+
 }
 
 /* ----------------------------------------------------------------
@@ -187,37 +212,41 @@ nest::iaf_simple::update( Time const& origin, const long from, const long to )
 
   for ( long lag = from; lag < to; ++lag )
   {
-    // neuron is never refractory
-    // use standard forward Euler numerics
-    // set input current
+    if ( S_.r_ref_ == 0 ) { // neuron not refractory, so evolve V
+      double P22 = std::exp( -h / P_.tau_m_ );
+      double P20 = P_.tau_m_ / P_.C_m_ * ( 1.0 - P22 );
+      S_.I_ = B_.currents_.get_value( lag );
+      double I_syn = B_.spikes_.get_value( lag );
 
-    double P22 = std::exp( -h / P_.tau_m_ );
-    double P20 = P_.tau_m_ / P_.C_m_ * ( 1.0 - P22 );
-
+      //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
+      S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
+      //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
     
-    S_.I_ = B_.currents_.get_value( lag );
-    double I_syn = B_.spikes_.get_value( lag );
-    //printf("S_.v_: %lf\th: %lf\tP_.I_e_: %lf\n", S_.v_, h,  P_.I_e_);
-    //S_.v_ += h * P_.I_e_ / P_.C_m_ + S_.I_ + I_syn;
-    S_.v_ += P_.I_e_ * P20 + S_.I_ + I_syn;
-    //printf("S_.v_: %lf\th: %lf\tP_.I_e_: %lf\n", S_.v_, h,  P_.I_e_);
+      //printf("S_.v_: %lf\tI_syn: %lf\tP_.I_e_: %lf\n", S_.v_, I_syn, P_.I_e_);
+      //S_.v_ += h * P_.I_e_ / P_.C_m_ + S_.I_ + I_syn;
+      S_.v_ += P_.I_e_ * P20 + S_.I_ + I_syn;
+      //printf("S_.v_: %lf\tI_syn: %lf\tP_.I_e_: %lf\n", S_.v_, I_syn, P_.I_e_);
+      
+      // threshold crossing
+      if ( S_.v_ >= P_.V_th_ ) {
+	S_.r_ref_ = V_.RefractoryCounts_;
+	S_.v_ = P_.V_reset_;
+	// compute spike time
+	set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
-    // threshold crossing
-    if ( S_.v_ >= P_.V_th_ )
-    {
-      S_.v_ = P_.V_reset_;
-
-      // compute spike time
-      set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
-
-      SpikeEvent se;
-      kernel().event_delivery_manager.send( *this, se, lag );
+	SpikeEvent se;
+	kernel().event_delivery_manager.send( *this, se, lag );
+      }
+      //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
+      //S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
+      //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
+      // lower bound of membrane potential
+      S_.v_ = ( S_.v_ < P_.V_min_ ? P_.V_min_ : S_.v_ );
     }
-    //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
-    S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
-    //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
-    // lower bound of membrane potential
-    S_.v_ = ( S_.v_ < P_.V_min_ ? P_.V_min_ : S_.v_ );
+    else {
+      // neuron is absolute refractory
+      --S_.r_ref_;
+    }
 
     // voltage logging
     B_.logger_.record_data( origin.get_steps() + lag );
