@@ -123,6 +123,7 @@ private:
     double E_L_;
     double V_reset_;
     double C_m_;
+    double t_ref_;     // Refractory period in ms.
 
     /** External DC current */
     double I_e_;
@@ -148,7 +149,7 @@ private:
   {
     double v_; // membrane potential
     double I_; // input current
-
+    int r_ref_; // absolute refractory counter
 
     /** Accumulate spikes arriving during refractory period, discounted for
         decay until end of refractory period.
@@ -186,6 +187,7 @@ private:
    */
   struct Variables_
   {
+    int RefractoryCounts_;
   };
 
   // Access functions for UniversalDataLogger -----------------------
