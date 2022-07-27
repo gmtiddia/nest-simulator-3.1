@@ -213,22 +213,18 @@ nest::iaf_simple::update( Time const& origin, const long from, const long to )
   for ( long lag = from; lag < to; ++lag )
   {
     if ( S_.r_ref_ == 0 ) { // neuron not refractory, so evolve V
-      //double P22 = std::exp( -h / P_.tau_m_ );
-      //double P20 = P_.tau_m_ / P_.C_m_ * ( 1.0 - P22 );
+      double P22 = std::exp( -h / P_.tau_m_ );
+      double P20 = P_.tau_m_ / P_.C_m_ * ( 1.0 - P22 );
       S_.I_ = B_.currents_.get_value( lag );
       double I_syn = B_.spikes_.get_value( lag );
 
       //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
-      //S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
+      S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
       //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
     
       //printf("S_.v_: %lf\tI_syn: %lf\tP_.I_e_: %lf\n", S_.v_, I_syn, P_.I_e_);
       //S_.v_ += h * P_.I_e_ / P_.C_m_ + S_.I_ + I_syn;
-      //S_.v_ += P_.I_e_ * P20 + S_.I_ + I_syn;
-      // S_.v_ += P_.I_e_ * P20
-      // + ( h * (-S_.v_ + P_.E_L_  + S_.I_ ) + I_syn ) / P_.tau_m_;
-      //S_.v_ +=  ( -S_.v_ + S_.I_ ) * h / P_.tau_m_ + I_syn / P_.tau_m_;
-      S_.v_ +=  ( -S_.v_ + S_.I_ ) * h / P_.tau_m_ + 1.0*I_syn; // P_.tau_m_;
+      S_.v_ += P_.I_e_ * P20 + S_.I_ + I_syn;
       //printf("S_.v_: %lf\tI_syn: %lf\tP_.I_e_: %lf\n", S_.v_, I_syn, P_.I_e_);
       
       // threshold crossing
@@ -245,7 +241,7 @@ nest::iaf_simple::update( Time const& origin, const long from, const long to )
       //S_.v_ = ( S_.v_ - P_.E_L_ ) * std::exp( - h / P_.tau_m_ ) + P_.E_L_;
       //printf("S_.v_: %lf\th: %lf\tP_.tau_m_: %lf\n", S_.v_, h,  P_.tau_m_);
       // lower bound of membrane potential
-      //S_.v_ = ( S_.v_ < P_.V_min_ ? P_.V_min_ : S_.v_ );
+      S_.v_ = ( S_.v_ < P_.V_min_ ? P_.V_min_ : S_.v_ );
     }
     else {
       // neuron is absolute refractory
