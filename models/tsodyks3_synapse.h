@@ -43,7 +43,9 @@ Description
 +++++++++++
 
 This synapse model implements synaptic short-term depression and short-term
-facilitation according to [1]_. It solves Eq (5) and Eq (6) from Supporting material of [1]_.
+facilitation according to [1]_ and [2]_. It solves Eq (5) and Eq (6) from 
+Supporting material of [1]_ and modulates the synaptic weight according
+to Eq (3.1) of [2]_.
 
 This connection merely scales the synaptic weight, based on the spike history
 and the parameters of the kinetic model. Thus, it is suitable for all types
@@ -86,6 +88,9 @@ References
 .. [1] Mongillo G, Barak O, Tsodyks M (2008). Synaptic Theory of Working
        Memory. Science 319, 1543–1546.
        DOI: https://doi.org/10.1126/science.1150769
+.. [2] Tsodyks M, Pawelzik K, Markram H (1998). Neural Networks with
+       Dynamic Synapses. Neural Computation 10, 821-835.
+       DOI: https://doi.org/10.1162/089976698300017502
 
 Transmits
 +++++++++
