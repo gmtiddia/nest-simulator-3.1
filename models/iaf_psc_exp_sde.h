@@ -53,17 +53,17 @@ The threshold crossing is followed by an absolute refractory period (t_ref)
 during which the membrane potential is clamped to the resting potential
 and spiking is prohibited.
 
-The linear subthreshold dynamics is integrated by the Exact
-Integration scheme [2]_. The neuron dynamics is solved on the time
-grid given by the computation step size. Incoming as well as emitted
-spikes are forced to that grid.
+The linear subthreshold dynamics is integrated with the Runge-Kutta method
+for stochastic differential equations using the scheme of [2]_. 
+The neuron dynamics is solved on the time grid given by the computation step
+size. Incoming as well as emitted spikes are forced to that grid.
 
 An additional state variable and the corresponding differential
 equation represents a piecewise constant external current.
 
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[2]_. A flow chart can be found in [3]_.
+[3]_. A flow chart can be found in [4]_.
 
 Spiking in this model can be either deterministic (delta=0) or stochastic (delta
 > 0). In the stochastic case this model implements a type of spike response
@@ -99,7 +99,7 @@ input as in other iaf models, i.e., this current directly enters
 the membrane potential equation. Current input through
 receptor_type 1, in contrast, is filtered through an exponential
 kernel with the time constant of the excitatory synapse,
-tau_syn_ex. For an example application, see [4]_.
+tau_syn_ex. For an example application, see [5]_.
 
 For conversion between postsynaptic potentials (PSPs) and PSCs,
 please refer to the ``postsynaptic_potential_to_current`` function in
@@ -132,15 +132,18 @@ References
 .. [1] Tsodyks M, Uziel A, Markram H (2000). Synchrony generation in recurrent
        networks with frequency-dependent synapses. The Journal of Neuroscience,
        20,RC50:1-5. URL: https://infoscience.epfl.ch/record/183402
-.. [2] Rotter S,  Diesmann M (1999). Exact simulation of
+.. [2] Roberts A J (2012). Modify the improved Euler scheme to integrate 
+       stochastic differential equations. 
+       DOI: https://doi.org/10.48550/arxiv.1210.0933
+.. [3] Rotter S,  Diesmann M (1999). Exact simulation of
        time-invariant linear systems with applications to neuronal
        modeling. Biologial Cybernetics 81:381-402.
        DOI: https://doi.org/10.1007/s004220050570
-.. [3] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001). State
+.. [4] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001). State
        space analysis of synchronous spiking in cortical neural
        networks. Neurocomputing 38-40:565-571.
        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
-.. [4] Schuecker J, Diesmann M, Helias M (2015). Modulated escape from a
+.. [5] Schuecker J, Diesmann M, Helias M (2015). Modulated escape from a
        metastable state driven by colored noise. Physical Review E 92:052119
        DOI: https://doi.org/10.1103/PhysRevE.92.052119
 
