@@ -76,6 +76,7 @@ set( models_sources
     iaf_psc_exp_ps_lossless.cpp iaf_psc_exp_ps_lossless.h
     izhikevich.h izhikevich.cpp
     iaf_simple.h iaf_simple.cpp
+    iaf_psc_exp_sde.h iaf_psc_exp_sde.cpp
     jonke_synapse.h
     lin_rate.h lin_rate.cpp
     mat2_psc_exp.h mat2_psc_exp.cpp
